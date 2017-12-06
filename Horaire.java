@@ -1,5 +1,6 @@
 package PMH;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -19,346 +20,381 @@ import javax.swing.*;
  * @author Eleve
  */
 public class Horaire extends mafenetre implements ActionListener{
-    private JComboBox ListCity , ListType ; 
-    private JTextArea ImageText ; 
-    private JLabel labelName, labelLat, labelLon,labelCity , labelImage , labelOpen , labelType , labelMatin , labelMidi , labelMessage;
-    private JTextField Name, Lat, Lon, City , Open , Matin1 , Matin2 , Midi1 , Midi2 , Type , message ; 
-    private JButton AddImage, AddType , Validate;
-    private String requete, ip1,pass,message3,id,message1, pilote="com.mysql.jdbc.Driver";
+    private JLabel LabelMode, LabelIndication , LabelName  , LabelDay,  LabelMatin_Debut , LabelMatin_Fin , LabelMidi_Debut , LabelMidi_Fin;
+    private JTextField Name , Day ,Indication,  IdDay  , IdHoraire ,   Matin_Debut , Matin_Fin , Midi_Debut , Midi_Fin ;
+    private JButton  Creation , Modification , Creer , Maj , PreviousHoraire , NextHoraire ,PreviousDay , NextDay, Delete;
+    private String message1,identifiant , password;
     private Connection dbConnect;
     private Statement dbStatement , dbStat;
-//    private listeimages l = new listeimages();
-//    private String numi[] = new String[100];
-//    private String nomi[] = new String[100];
-//    private String numb[] = new String[100];
-    private int compteur, compteurmax = 0;
-    private int CompteurImage = 1 , CompteurType = 1 ; 
-    
+    public String[] Horaire_Name = new String[200] ,IdHoraireTab = new String[200] , Day_Name = new String[200] ,  IdDayTab = new String[200] ;
+    private int Rang ;
+    private ResultSet infoHoraire ;
+
 
     public Horaire(String titrea, int largeura, int hauteura, int positionXa, int positionYa, String message3 , String id , String pass) throws SQLException {
         super(titrea, largeura, hauteura, positionXa, positionYa);
-//        System.out.println("Je passe 1");
-//        this.ip1=ip1; 
-//                System.out.println("Je passe 2");
-//
-//                System.out.println("Je passe 3");
-//        this.id= id;
-//                System.out.println("Je passe 4");
-//        this.pass = pass;
-//
-//        for(image current : l.findImage()) // pour chaque String current dans l
-//        {   compteur++;
-//           numi[compteur] = Integer.toString(current.getNumImage());
-//            nomi[compteur] = current.getNomImage();
-//            numb[compteur] = Integer.toString(current.getNumBien());
-//        }
-//        compteurmax = compteur;
+        this.message1 = message3 ;
+        this.identifiant = id ;
+        this.password = pass ;
         buildContentPane();
     }
 
-    
-    void buildContentPane() throws SQLException  {      
-        labelName = new JLabel("____________________________________________________________________Nom du monument : ____________________________________________________________________");
-        labelLat = new JLabel("____________________________________________________________________Latitude du monument :____________________________________________________________________");
-        labelLon = new JLabel("____________________________________________________________________Longitude du monument :____________________________________________________________________");
-        labelCity = new JLabel("____________________________________________________________________Ville du monument : ____________________________________________________________________");
-        labelImage = new JLabel("____________________________________________________________________Url image :(Séparé les liens avec '$')_____________________________________");
-        labelOpen = new JLabel("____________________________________________________________________________________________Horaires d'ouverture : ____________________________________________________________________________________________");
-        labelType = new JLabel("____________________________________________________________________Type du monument : ____________________________________________________________________");
-        labelMatin = new JLabel("Matin : ");
-        labelMidi = new JLabel("Midi :  ");
-        Name = new JTextField(50);
-        Lat = new JTextField(50);
-        Lon = new JTextField(50);
-//        City = new JTextField(100);
-        ImageText = new JTextArea(20, 20);
-//        JScrollPane ImageText = new JScrollPane(Image);
-//        Type = new JTextField(50);
-        Matin1 = new JTextField(15);Matin2 = new JTextField(15);
-        Midi1 = new JTextField(15);Midi2 = new JTextField(15);
-        AddImage = new JButton(" + ");
-        AddType = new JButton(" + ");
-        Validate = new JButton("___________________________________________________________Valider __________________________________________________________ ");
-        this.dbConnect = DriverManager.getConnection("jdbc:mysql://localhost/Monument", "root", "root");
-//            this.dbConnect = DriverManager.getConnection(this.message3, this.id, this.pass);
+
+    void buildContentPane() throws SQLException  {
+
+        Creation = new JButton (" Creation ");
+        Modification = new JButton (" Modification ");
+        this.dbConnect = DriverManager.getConnection(this.message1, this.identifiant,this.password);
         this.dbStatement = this.dbConnect.createStatement();
-//            this.dbStat = this.dbConnect.createStatement();
-        ResultSet result = this.dbStatement.executeQuery("SELECT * FROM City");
 
-        int size = 0;
-        result.last();
-        size = result.getRow();
-        result.beforeFirst();
 
-        String[] optionsCity = new String[size] ;
-        int i = 0 ; 
-        while (result.next()){
-            String  lsAdresse = result.getString(2);
-            optionsCity[i] = lsAdresse ; 
-            i++; 
-        }
-        result.close() ;
-        ResultSet resultbis = this.dbStatement.executeQuery("SELECT * FROM Type");
+        panel.add(Creation);
+        panel.add(Modification);
 
-        int sizebis = 0;
-        resultbis.last();
-        sizebis = resultbis.getRow();
-        resultbis.beforeFirst();
 
-        String[] optionsType = new String[sizebis] ;
-        int j = 0 ; 
-        while (resultbis.next()){
-            String  lsAdressebis = resultbis.getString(2);
-            optionsType[j] = lsAdressebis ; 
-            j++; 
-        }
-        resultbis.close() ; 
-        ListCity = new JComboBox(optionsCity);
-        ListType = new JComboBox(optionsType);
-//        Numimage = new JTextField(16); // la taille 16 correspond a la taille de la table user de mysql
-//        Numimage.setText(numi[compteur]);
-//        test1 = new JTextField(16);
-//        test2 = new JTextField(16);
-//        test3 = new JTextField(16);
-//        test4 = new JTextField(16);
-//        test5 = new JTextField(16);
-//        test6 = new JTextField(16);
-//        boutonplus = new JButton(" + ");
-//        labelNomimage = new JLabel("__________ Saisir votre nom d'image __________  ");
-//        Nomimage = new JTextField(35); 
-//        Nomimage.setText(nomi[compteur]); 
-//        labelNumbien = new JLabel("____________________ Saisir votre numéro de bien ____________________ ");
-//        Numbien = new JTextField(35); // la taille 16 correspond a la taille de la table user de mysql
-//        Numbien.setText(numb[compteur]);
-        panel.add(labelName);
-        panel.add(Name);
-        panel.add(labelLat);
-        panel.add(Lat);
-        panel.add(labelLon);
-        panel.add(Lon);
-        panel.add(labelCity);
-//        panel.add(City);
-        panel.add(ListCity);
-        panel.add(labelOpen);panel.add(labelMatin);panel.add(Matin1);panel.add(Matin2);
-        panel.add(labelMidi);panel.add(Midi1);panel.add(Midi2);
-        panel.add(labelImage);/*panel.add(AddImage);*/panel.add(ImageText);panel.add(labelType);/*panel.add(AddType);*/panel.add(ListType);
-        panel.add(Validate);
-//        bouton1 = new JButton(" Créer ");
-//        bouton2 = new JButton(" Modifier ");
-//        bouton3 = new JButton(" Supprimer ");
-//        panel.add(bouton1);
-//        panel.add(bouton2);
-//        panel.add(bouton3);
-        AddImage.addActionListener(this);
-        AddType.addActionListener(this);
-        Validate.addActionListener(this);
-//        bouton1.addActionListener(this);
-//        bouton2.addActionListener(this);
-//        bouton3.addActionListener(this);
-        labelMessage = new JLabel("____________________________________________________________________________ Message d'erreur ____________________________________________________________________________  ");
-        panel.add(labelMessage);
-        message = new JTextField(35);
-        panel.add(message); 
+        Creation.addActionListener(this);
+        Modification.addActionListener(this);
+
+
         this.setContentPane(panel);
-//        this.setContentPane(PanelImage);
-        System.out.println("JE PASSE 3.0");
-        System.out.println(this.message3);
 
-    }   
+
+
+    }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
         Object source = ae.getSource();
-//        System.out.println("Je passe ici 1.0");
-//        System.out.println(source);
-        if(source == AddImage){
-labelImage = new JLabel("____________________________________________________________________Url image :____________________________________________________________________");
-this.CompteurImage ++ ;            
-if(this.CompteurImage == 2){
-               // Image = new JTextField(120);
-            }
-            
-//            panel.add(labelImage);
-//            panel.add(Image);
-//            this.setContentPane(panel);
+        if(source == Creation){
+            System.out.println("Creation");
 
-            System.out.println("AddImage");
+            if(LabelName != null){
+                panel.remove(LabelMode);
+                panel.remove(LabelName);
+                panel.remove(LabelMatin_Debut);
+                panel.remove(LabelMatin_Fin);
+                panel.remove(LabelMidi_Debut);
+                panel.remove(LabelMidi_Fin);
+                panel.remove(Matin_Debut);
+                panel.remove(Matin_Fin);
+                panel.remove(Midi_Fin);
+                panel.remove(Midi_Debut);
+                panel.remove(Name);
+                panel.remove(LabelIndication);
+                panel.remove(Indication);
+                if(Maj != null){
+                    panel.remove(Maj);
+                }
+                if(IdHoraire != null){
+                    panel.remove(IdHoraire);
+                    panel.remove(IdDay);
+                }
+                if(Creer != null){
+                    panel.remove(Creer);
+                }
+                if(PreviousHoraire != null){
+                    panel.remove(PreviousHoraire);
+                    panel.remove(PreviousDay);
+                }
+                if(NextHoraire != null){
+                    panel.remove(NextHoraire);
+                    panel.remove(NextDay);
+                }
+                if(Delete != null){
+                    panel.remove(Delete);
+                }
+                panel.revalidate();
+                panel.repaint();
+            }
+
+            LabelMode = new JLabel("______________________________________________________________________________________________________________Mode Creation : ______________________________________________________________________________________________________________");
+            LabelName = new JLabel("___________________________________________________________________________________________________________Nom de la Monument : ___________________________________________________________________________________________________________");
+            LabelDay = new JLabel("___________________________________________________________________________________________________________Jour  : ___________________________________________________________________________________________________________");
+            LabelMatin_Debut = new JLabel("___________________________________________________________________________________________________________Heure d'ouverture Matin : ___________________________________________________________________________________________________________");
+            LabelMatin_Fin = new JLabel("___________________________________________________________________________________________________________Heure fermeture Matin : ___________________________________________________________________________________________________________");
+            LabelMidi_Debut = new JLabel("___________________________________________________________________________________________________________Heure d'ouverture Midi : ___________________________________________________________________________________________________________");
+            LabelMidi_Fin = new JLabel("___________________________________________________________________________________________________________Heure fermeture Midi : ___________________________________________________________________________________________________________");
+            LabelIndication = new JLabel("___________________________________________________________________________________________________________Résultat : ___________________________________________________________________________________________________________");
+            Indication = new JTextField(80);
+            Name = new JTextField(80);
+            Day = new JTextField(50);
+            Matin_Debut = new JTextField(5);
+            Matin_Fin = new JTextField(5);
+            Midi_Debut = new JTextField(5);
+            Midi_Fin = new JTextField(5);
+
+            Creer = new JButton(" CREER ");
+
+            panel.add(LabelMode);
+            panel.add(LabelName);
+            panel.add(Name);
+            panel.add(LabelDay);
+            panel.add(Day);
+            panel.add(LabelMatin_Debut);
+            panel.add(Matin_Debut);
+            panel.add(LabelMatin_Fin);
+            panel.add(Matin_Fin);
+            panel.add(LabelMidi_Debut);
+            panel.add(Midi_Debut);
+            panel.add(LabelMidi_Fin);
+            panel.add(Midi_Fin);
+            panel.add(Creer);
+            Creer.addActionListener(this);
+            panel.add(LabelIndication);
+            panel.add(Indication);
+            Indication.setEditable(false);
 
         }
-        if(source == AddType){
+        if(source == Modification){
+            System.out.println("Modification");
+            if(LabelName != null){
+                panel.remove(LabelMode);
+                panel.remove(LabelName);
+                panel.remove(LabelLat);
+                panel.remove(LabelLon);
+                panel.remove(LabelVille);
+                panel.remove(LabelType);
+                panel.remove(Lon);
+                panel.remove(Ville);
+                panel.remove(Type);
+                panel.remove(Lat);
+                panel.remove(Name);
+                panel.remove(LabelIndication);
+                panel.remove(Indication);
+                if(Maj != null){
+                    panel.remove(Maj);
+                }
+                if(IdHoraire != null){
+                    panel.remove(IdHoraire);
+                }
+                if(Creer != null){
+                    panel.remove(Creer);
+                }
+                if(Previous != null){
+                    panel.remove(Previous);
+                }
+                if(Next != null){
+                    panel.remove(Next);
+                }
+                if(Delete != null){
+                    panel.remove(Delete);
+                }
+                panel.revalidate();
+                panel.repaint();
+            }
+            LabelMode = new JLabel("______________________________________________________________________________________________________________Mode Modification : _____________________________________________________________________________________________________________");
+            LabelName = new JLabel("___________________________________________________________________________________________________________Nom de la  Horaire : ___________________________________________________________________________________________________________");
+            LabelLat = new JLabel("___________________________________________________________________________________________________________Latitude : ___________________________________________________________________________________________________________");
+            LabelLon = new JLabel("___________________________________________________________________________________________________________Longitude : ___________________________________________________________________________________________________________");
+            LabelVille = new JLabel("___________________________________________________________________________________________________________Ville : ___________________________________________________________________________________________________________");
+            LabelType = new JLabel("___________________________________________________________________________________________________________Type : ___________________________________________________________________________________________________________");
+            LabelIndication = new JLabel("___________________________________________________________________________________________________________Résultat : ___________________________________________________________________________________________________________");
+            Indication = new JTextField(80);
+            Name = new JTextField(80);
+            Lat = new JTextField(80);
+            Lon = new JTextField(80);
+            IdHoraire = new JTextField(80);
+            IdHoraire.setEditable(false);
+            Previous = new JButton (" < ");
+            Next = new JButton (" > ");
+            Maj = new JButton(" METTRE A JOUR  ");
+            Delete = new JButton(" SUPPRIMER  ");
+            panel.add(LabelMode);
+            panel.add(IdHoraire);
+            panel.add(LabelName);
+            panel.add(Previous);
+            panel.add(Name);
+            panel.add(Next);
+            panel.add(LabelLat);
+            panel.add(Lat);
+            panel.add(LabelLon);
+            panel.add(Lon);
+            panel.add(LabelType);
+            panel.add(Type);
+            panel.add(LabelVille);
+            panel.add(Ville);
+            panel.add(Maj);
+            panel.add(Delete);
+            panel.add(LabelIndication);
+            panel.add(Indication);
+            Indication.setEditable(false);
+            Maj.addActionListener(this);
+            Delete.addActionListener(this);
+            Previous.addActionListener(this);
+            Next.addActionListener(this);
+            try {
+                this.dbConnect = DriverManager.getConnection(this.message1, this.identifiant, this.password);
+            } catch (SQLException ex) {
+                Logger.getLogger(PMH.Horaire.class.getName()).log(Level.SEVERE, null, ex);
+            }
             try {
                 this.dbStatement = this.dbConnect.createStatement();
-                
-                
-                ResultSet resulttype = this.dbStatement.executeQuery("SELECT * FROM Type");
-                
-                
-                int sizetype = 0;
-                resulttype.last();
-                sizetype = resulttype.getRow();
-                resulttype.beforeFirst();
-                
-                String[] optionsType = new String[sizetype] ;
-                int j = 0 ;
-                while (resulttype.next()){
-                    String  lsAdressebis = resulttype.getString(2);
-                    optionsType[j] = lsAdressebis ; 
-                    j++;
-                }
-                labelType = new JLabel("____________________________________________________________________Type du Monument :____________________________________________________________________");
-                ListType = new JComboBox(optionsType);
-                panel.add(labelType);
-                panel.add(ListType);
-                this.setContentPane(panel);
             } catch (SQLException ex) {
-                Logger.getLogger(Horaire.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PMH.Horaire.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            try {
+                this.infoHoraire = this.dbStatement.executeQuery("SELECT * ,Horaire.Id AS Id_Horaire ,City.Id AS Iden_City ,Horaire.Name AS  Name_Horaire , City.Name AS Name_City , Type.Name AS Name_Type ,Type.Id AS Iden_Type FROM Horaire LEFT JOIN City ON Horaire.Id_city = City.Id LEFT JOIN Avoir ON Horaire.Id = Avoir.Id_Horaire LEFT JOIN Type ON Avoir.Id_Type = Type.Id");
+            } catch (SQLException ex) {
+                Logger.getLogger(PMH.Horaire.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            int numero = 0 ;
+            try {
+                while(this.infoHoraire.next()){
+                    this.Horaire_Name[numero] = this.infoHoraire.getString("Name_Horaire") ;
+                    this.IdHoraireTab[numero] = this.infoHoraire.getString("Id_Horaire") ;
+                    this.Lat_Value[numero] = this.infoHoraire.getString("Lat");
+                    this.Lon_Value[numero] = this.infoHoraire.getString("Lon");
+                    this.NameCityHoraire[numero] = this.infoHoraire.getString("Name_city");
+                    this.NameTypeHoraire[numero] = this.infoHoraire.getString("Name_Type");
+                    numero++ ;
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(PMH.Horaire.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            Name.setText(this.Horaire_Name[0]);
+            Lat.setText(this.Lat_Value[0]);
+            IdHoraire.setText(this.IdHoraireTab[0]);
+            Lon.setText(this.Lon_Value[0]);
+            Ville.setSelectedItem(this.NameCityHoraire[0]);
+            Type.setSelectedItem(this.NameTypeHoraire[0]);
+
+        }
+        if(source == Previous){
+            System.out.println(this.Rang);
+
+            if(this.Rang == 0){
+            }else{
+                this.Rang-- ;
+                Name.setText(this.Horaire_Name[this.Rang]);
+                Lat.setText(this.Lat_Value[this.Rang]);
+                Lon.setText(this.Lon_Value[this.Rang]);
+                IdHoraire.setText(this.IdHoraireTab[this.Rang]);
+                Ville.setSelectedItem(this.NameCityHoraire[this.Rang]);
+                Type.setSelectedItem(this.NameTypeHoraire[this.Rang]);
             }
         }
-        if (source == Validate){
-            System.out.println("Nom");
-        System.out.println(Name.getText());
-        System.out.println("Lat");
-        System.out.println(Lat.getText());
-                System.out.println("Lon");
+        if(source == Next){
+            System.out.println(this.Rang);
+            this.Rang++ ;
+            if(this.Horaire_Name[this.Rang] == null){
+                this.Rang-- ;
+            }else{
+                Name.setText(this.Horaire_Name[this.Rang]);
+                Lat.setText(this.Lat_Value[this.Rang]);
+                Lon.setText(this.Lon_Value[this.Rang]);
+                IdHoraire.setText(this.IdHoraireTab[this.Rang]);
+                Ville.setSelectedItem(this.NameCityHoraire[this.Rang]);
+                Type.setSelectedItem(this.NameTypeHoraire[this.Rang]);
+            }
+        }
+        if(source == Creer){
+            try {
+                String request = "INSERT INTO Horaire(Name, Lat , Lon , Id_City) VALUES('"+Name.getText()+"' , '"+Lat.getText()+"' ,'"+Lon.getText()+"' , (SELECT Id FROM City WHERE Name = '"+Ville.getSelectedItem()+"') )  " ;
+                String requestbis = "INSERT INTO Avoir(Id_Horaire, Id_Type) VALUES((SELECT Id FROM Horaire ORDER BY Id DESC LIMIT 1 ), (SELECT Id FROM Type WHERE Name = '"+Type.getSelectedItem()+"') ) " ;
+                this.dbStatement.executeUpdate(request);
+                this.dbStatement.executeUpdate(requestbis);
+                Indication.setText("La Horaire "+Name.getText()+" a bien été inscrite dans la base de donnée");
+            } catch (SQLException ex) {
+                Logger.getLogger(PMH.Horaire.class.getName()).log(Level.SEVERE, null, ex);
+                Indication.setText("La Horaire "+Name.getText()+" n'a pas été inscrite dans la base de donnée , Une erreur s'est produite");
+            }
+        }
+        if(source == Maj){
+            try {
+                String request = "UPDATE Horaire SET Name = '"+Name.getText()+"' , Lat = '"+Lat.getText()+"' , Lon = '"+Lon.getText()+"', Id_City = (SELECT Id FROM City WHERE Name = '"+Ville.getSelectedItem()+"' ) WHERE Id = '"+IdHoraire.getText()+"'" ;
+                String requestbis = "UPDATE Avoir SET Id_Type = (SELECT Id FROM Type WHERE Name = '"+Type.getSelectedItem()+"' )WHERE Id_Horaire = '"+IdHoraire.getText()+"'" ;
+                this.dbStatement.executeUpdate(request);
+                this.dbStatement.executeUpdate(requestbis);
+                try {
+                    this.infoHoraire = this.dbStatement.executeQuery("SELECT * ,Horaire.Id AS Id_Horaire ,City.Id AS Iden_City ,Horaire.Name AS  Name_Horaire , City.Name AS Name_City , Type.Name AS Name_Type ,Type.Id AS Iden_Type FROM Horaire LEFT JOIN City ON Horaire.Id_city = City.Id LEFT JOIN Avoir ON Horaire.Id = Avoir.Id_Horaire LEFT JOIN Type ON Avoir.Id_Type = Type.Id");
+                } catch (SQLException ex) {
+                    Logger.getLogger(PMH.Horaire.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                int numero = 0 ;
+                try {
+                    while(this.infoHoraire.next()){
+                        this.Horaire_Name[numero] = this.infoHoraire.getString("Name_Horaire") ;
+                        this.IdHoraireTab[numero] = this.infoHoraire.getString("Id_Horaire") ;
+                        this.Lat_Value[numero] = this.infoHoraire.getString("Lat");
+                        this.Lon_Value[numero] = this.infoHoraire.getString("Lon");
+                        this.NameCityHoraire[numero] = this.infoHoraire.getString("Name_city");
+                        this.NameTypeHoraire[numero] = this.infoHoraire.getString("Name_Type");
+                        numero++ ;
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(PMH.Horaire.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                Indication.setText("La Horaire"+Name.getText()+" a bien été mise a jour dans la base de donnée");
+            } catch (SQLException ex) {
+                Logger.getLogger(PMH.Horaire.class.getName()).log(Level.SEVERE, null, ex);
+                Indication.setText("La Horaire "+Name.getText()+" n'a pas été mise a jour dans la base de donnée , Une erreur s'est produite");
+            }
+        }
+        if(source == Delete){
+            try {
+                String request = "DELETE FROM Horaire WHERE Id = '"+IdHoraire.getText()+"'" ;
+                String requestbis = "DELETE FROM Avoir WHERE Id_Horaire = '"+IdHoraire.getText()+"'" ;
+                this.dbStatement.executeUpdate(requestbis);
+                this.dbStatement.executeUpdate(request);
+                Indication.setText("La Horaire "+Name.getText()+" a bien été supprimer dans la base de donnée");
+                this.Rang -- ;
+                Name.setText(this.Horaire_Name[this.Rang]);
+                Lat.setText(this.Lat_Value[this.Rang]);
+                Lon.setText(this.Lon_Value[this.Rang]);
+                IdHoraire.setText(this.IdHoraireTab[this.Rang]);
+                Ville.setSelectedItem(this.NameCityHoraire[this.Rang]);
+                Type.setSelectedItem(this.NameTypeHoraire[this.Rang]);
+                try {
 
-        System.out.println(Lon.getText());
-                System.out.println("Ville");
+                    this.Horaire_Name = null;
+                    this.Horaire_Name = new String[200] ;
 
-        System.out.println(ListCity.getSelectedItem());
-                
+                    this.Lat_Value = null;
+                    this.Lat_Value = new String[200] ;
 
-//       String[] parts =  ImageText.getText().split("$");
-       System.out.println("Image");
-       String Str = new String(ImageText.getText());
-       for(String retval: Str.split("~"))
-{
-    System.out.println(retval);
-//           System.out.println(parts[i]);
-//           String NomImage = parts[i] ;
-//           String[] Test = NomImage.split("$");
-//           System.out.println(Test[0]);
-////           System.out.println(NomImage.length()-1);
-//           String chemin = NomImage.substring(0,NomImage.length()-1);
-//           System.out.println(chemin);
-       }
-//        while (ListType){
-                System.out.println("Type");
+                    this.Lon_Value = null;
+                    this.Lon_Value = new String[200] ;
 
-        System.out.println(ListType.getSelectedIndex());
-//        }
-                System.out.println("Matin 1");
+                    this.IdHoraireTab = null ;
+                    this.IdHoraireTab = new String[200] ;
 
-        System.out.println(Matin1.getText());
-                System.out.println("Matin 2");
+                    this.NameTypeHoraire = null ;
+                    this.NameTypeHoraire = new String[200] ;
 
-        System.out.println(Matin2.getText());
-                System.out.println("Midi 1");
+                    this.NameCityHoraire = null ;
+                    this.NameCityHoraire = new String[200] ;
 
-        System.out.println(Midi1.getText());
-                System.out.println("Midi 2");
+                    this.infoHoraire = this.dbStatement.executeQuery("SELECT * ,Horaire.Id AS Id_Horaire ,City.Id AS Iden_City ,Horaire.Name AS  Name_Horaire , City.Name AS Name_City , Type.Name AS Name_Type ,Type.Id AS Iden_Type FROM Horaire LEFT JOIN City ON Horaire.Id_city = City.Id LEFT JOIN Avoir ON Horaire.Id = Avoir.Id_Horaire LEFT JOIN Type ON Avoir.Id_Type = Type.Id");
+                } catch (SQLException ex) {
+                    Logger.getLogger(PMH.Horaire.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                int numero = 0 ;
+                try {
+                    while(this.infoHoraire.next()){
+                        this.Horaire_Name[numero] = this.infoHoraire.getString("Name_Horaire") ;
+                        this.IdHoraireTab[numero] = this.infoHoraire.getString("Id_Horaire") ;
+                        this.Lat_Value[numero] = this.infoHoraire.getString("Lat");
+                        this.Lon_Value[numero] = this.infoHoraire.getString("Lon");
+                        this.NameCityHoraire[numero] = this.infoHoraire.getString("Name_city");
+                        this.NameTypeHoraire[numero] = this.infoHoraire.getString("Name_Type");
+                        numero++ ;
+                    }
+                    this.Rang = 0 ;
+                    Name.setText(this.Horaire_Name[0]);
+                    Lat.setText(this.Lat_Value[0]);
+                    IdHoraire.setText(this.IdHoraireTab[0]);
+                    Lon.setText(this.Lon_Value[0]);
+                    Ville.setSelectedItem(this.NameCityHoraire[0]);
+                    Type.setSelectedItem(this.NameTypeHoraire[0]);
+                } catch (SQLException ex) {
+                    Logger.getLogger(PMH.Horaire.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
-        System.out.println(Midi2.getText());
-                                
-             }
-//        if((compteur > 1) && (source == boutonmoins))
-//        {
-//            System.out.println("Je passse 2.0");
-//        compteur--;
-//        Numimage.setText(numi[compteur]);
-//        Nomimage.setText(nomi[compteur]);
-//        Numbien.setText(numb[compteur]);
-//        message.setText(" ");
-//        }
-//        else
-//        {
-//            System.out.println("Je passe 1.1");
-//            if((compteur <= compteurmax) && (source == boutonplus))
-//         {
-//             System.out.println("JE passe 1.2");
-//         compteur++;
-//         Numimage.setText(numi[compteur]);
-//         Nomimage.setText(nomi[compteur]);
-//         Numbien.setText(numb[compteur]);
-//         message.setText(" ");
-//         }
-//         else
-//         {  
-//             System.out.println("Je passe 1.3");
-//            try	{
-//
-//            Class.forName(pilote).newInstance();
-//            System.out.println("Jpasse 1.4");
-//            message1=this.ip1;
-//            System.out.println("Je suis la !!");
-//            System.out.println(message3);
-//            System.out.println(id);
-//            System.out.println(pass);
-//
-//            //this.dbConnect = DriverManager.getConnection("jdbc:mysql://localhost", "root", "root");
-//            this.dbConnect = DriverManager.getConnection(this.message3, this.id, this.pass);
-//            this.dbStatement = this.dbConnect.createStatement();
-//            message1 = "Connexion réussie !";
-//            
-//                if(source == bouton1){
-//                requete = "Insert into image (numimage, nomimage, numbien) values ("
-//                 + Numimage.getText()+" , '"+ Nomimage.getText()+ "' , "+Numbien.getText()+" );";  	
-//                try 
-//                {
-//                this.dbStatement.executeUpdate(requete);
-//                message.setText("image insérée dans la base");
-//                compteurmax++;
-//                numi[compteur]=Numimage.getText();
-//                nomi[compteur]=Nomimage.getText();
-//                numb[compteur]=Numbien.getText();                
-//                } 
-//                catch (SQLException e) 
-//                {
-//                message.setText("erreur d'insertion dans la base : "+e);
-//                } 
-//                }
-//                else if(source == bouton2){  
-//                requete = "Update image Set nomimage = '"+Nomimage.getText()+"', numbien = "
-//                  +Numbien.getText() + " where numimage ="+ Numimage.getText()+";"; 
-//                try {
-//                this.dbStatement.executeUpdate(requete);
-//                nomi[compteur]=Nomimage.getText();
-//                numb[compteur]=Numbien.getText(); 
-//                message.setText("image modifiée dans la base");
-//                } 
-//                catch (SQLException e) 
-//                {
-//                message.setText("erreur de modification dans la base : "+e);
-//                }
-//                }
-//		else if(source == bouton3){
-//                requete = "Delete FROM image WHERE numimage ="+ Numimage.getText()+";";  	
-//                try {
-//                    this.dbStatement.executeUpdate(requete);
-//                    for (int j=compteur;j<=compteurmax;j++)
-//                    {   numi[j]=numi[j+1];
-//                        nomi[j]=nomi[j+1];
-//                        numb[j]=numb[j+1];
-//                    }
-//                    Numimage.setText(numi[compteurmax]);
-//                    Nomimage.setText(nomi[compteurmax]);
-//                    Numbien.setText(numb[compteurmax]);
-//                    compteurmax--;
-//                    compteur--;
-//                message.setText("image supprimée de la base");
-//                } 
-//                catch (SQLException e) 
-//                {
-//                message.setText("erreur de suppression dans la base : "+e);
-//                }
-//                }
-//            }
-//            catch
-//    (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) 
-//            {message1 = "je n'ai pas réussi à me connecter à immo ";
-//            message.setText(message1);
-//            }
-//               
-//        }  // fin 2ème else
-//        } //fin du 1er else
+            } catch (SQLException ex) {
+                Logger.getLogger(PMH.Horaire.class.getName()).log(Level.SEVERE, null, ex);
+                Indication.setText("La Horaire "+Name.getText()+" n'a pas été supprimer dans la base de donnée , Une erreur s'est produite");
+            }
+        }
     } //action performed
 }
