@@ -1,6 +1,6 @@
 package PMH;
 
-import PMH.mafenetre;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -141,6 +141,7 @@ import javax.swing.JTextField;
                         if(source == Horaire){
             try {
                 CalDim calcul = new CalDim();
+                System.out.println ("Bien rentré HEHE");
                 Horaire fenetre6 = new Horaire("Gestion Horaire",calcul.getlall(),calcul.gethall(),0,0,this.message1,this.identifiant ,this.password);
                 System.out.println ("Lancement gestion Horaire");
             } catch (SQLException ex) {
